@@ -3,8 +3,9 @@ import MeCab
 import regex as re
 
 def textExtract(path):
-    text = textract.process(path)
-    return text
+    extractedBytes = textract.process(path)
+    decodedText = extractedBytes.decode("utf-8")
+    return decodedText
 
 def jpWordExtract(text):
     wakati = MeCab.Tagger("-Owakati")
@@ -19,6 +20,8 @@ def jpWordExtract(text):
         else:
             wordDict[word] += 1
     
+    wordDict = {k: v for k, v in sorted(wordDict.items(), key = lambda item: item[1], reverse=True)}
+
     return wordDict
       
 def checkWord(word):
@@ -27,8 +30,3 @@ def checkWord(word):
         and not re.match(r'\W', word)
         and re.match(r'\p{Hiragana}|\p{Katakana}|\p{Han}', word)
     )
-
-extractedBytes = textExtract('./sample.txt')
-finalText = extractedBytes.decode("utf-8")
-
-print(jpWordExtract(finalText))
