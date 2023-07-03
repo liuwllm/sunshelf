@@ -1,4 +1,4 @@
-from flask import Flask, Response, flash, request, redirect, url_for
+from flask import Flask, Response, flash, request, redirect, url_for, jsonify
 from flask_cors import CORS, cross_origin
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import json
 from werkzeug.utils import secure_filename
 from jpextract import *
+from jmdictread import *
 
 load_dotenv()
 uri = os.getenv('MONGODB_URI')
@@ -51,6 +52,15 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+def match(dictionary):
+    megaList = []
+    for word in dictionary:
+        for entry in dictEntries:
+            if word in entry['keb']:
+                megaList.append(entry)
+    print(megaList)
+    return megaList
+
 @app.route('/textupload', methods=['POST'])
 @cross_origin()
 def upload():
@@ -58,5 +68,6 @@ def upload():
     savedPath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
     f.save(savedPath)
     analysis = jpWordExtract(textExtract(savedPath))
-    return Response(response=json.dumps(analysis),
+    foundWords = match(analysis)
+    return Response(response=json.dumps(foundWords),
                     mimetype='application/json')

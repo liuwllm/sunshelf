@@ -16,7 +16,7 @@ def jpWordExtract(text):
         checkWord,
         wordList):
         if word not in wordDict:
-            wordDict[word] = 0
+            wordDict[word] = 1
         else:
             wordDict[word] += 1
     
