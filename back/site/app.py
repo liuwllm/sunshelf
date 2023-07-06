@@ -8,22 +8,18 @@ import json
 from werkzeug.utils import secure_filename
 from jpextract import *
 from jmdictread import *
+from bson.json_util import dumps
 
 load_dotenv()
 uri = os.getenv('MONGODB_URI')
 
 client = MongoClient(uri, server_api=ServerApi('1'))
 
-
 try:
     client.admin.command('ping')
     print("Successfully connected to DB!")
 except Exception as e:
     print(e)
-
-
-db = client['jpdata']
-collection = db['jpwords']
 
 '''
 file = open('jmdict.json')
@@ -36,14 +32,6 @@ x = collection.insert_many(data)
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
-
-@app.route('/')
-@cross_origin()
-def base():
-    return Response(response=json.dumps({"Status": "UP"}),
-                    status=200,
-                    mimetype='application/json')
 
 app.config['UPLOAD_FOLDER'] = './uploads'
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'epub'}
@@ -61,6 +49,9 @@ def match(dictionary):
     print(megaList)
     return megaList
 
+db = client['jpdata']
+collection = db['books']
+
 @app.route('/textupload', methods=['POST'])
 @cross_origin()
 def upload():
@@ -69,5 +60,20 @@ def upload():
     f.save(savedPath)
     analysis = jpWordExtract(textExtract(savedPath))
     foundWords = match(analysis)
-    return Response(response=json.dumps(foundWords),
+    
+    dbEntry = {}
+    dbEntry['words'] = foundWords
+    dbEntry['title'] = "Untitled"
+
+    book = collection.insert_one(dbEntry)
+    
+    uploadResponse = {"_id": str(book.inserted_id)}
+
+    return Response(response=json.dumps(uploadResponse),
+                    mimetype='application/json')
+
+@app.route('/', methods=['GET'])
+@cross_origin()
+def render():
+    return Response(response=dumps(list(collection.find())),
                     mimetype='application/json')
