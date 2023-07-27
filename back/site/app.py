@@ -9,6 +9,7 @@ from werkzeug.utils import secure_filename
 from jpextract import *
 from jmdictread import *
 from bson.json_util import dumps
+from bson.objectid import ObjectId
 
 load_dotenv()
 uri = os.getenv('MONGODB_URI')
@@ -20,14 +21,6 @@ try:
     print("Successfully connected to DB!")
 except Exception as e:
     print(e)
-
-'''
-file = open('jmdict.json')
-data = json.load(file)
-
-collection.delete_many({ })
-x = collection.insert_many(data)
-'''
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -49,25 +42,31 @@ def match(dictionary):
     print(megaList)
     return megaList
 
-db = client['jpdata']
-collection = db['books']
-
 @app.route('/textupload', methods=['POST'])
 @cross_origin()
 def upload():
+    db = client['jpdata']
+    collection = db['books']
+    
     f = request.files['file']
     savedPath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
     f.save(savedPath)
     analysis = jpWordExtract(textExtract(savedPath))
     foundWords = match(analysis)
     
+    title = request.form.get('title')
+
     dbEntry = {}
     dbEntry['words'] = foundWords
-    dbEntry['title'] = "Untitled"
+    dbEntry['title'] = title
 
     book = collection.insert_one(dbEntry)
     
     uploadResponse = {"_id": str(book.inserted_id)}
+
+    collection = db['titles']
+
+    collection.insert_one({'_id': str(book.inserted_id), 'title': dbEntry['title']})
 
     return Response(response=json.dumps(uploadResponse),
                     mimetype='application/json')
@@ -75,5 +74,19 @@ def upload():
 @app.route('/', methods=['GET'])
 @cross_origin()
 def render():
+    db = client['jpdata']
+    collection = db['titles']
+
     return Response(response=dumps(list(collection.find())),
+                    mimetype='application/json')
+
+@app.route('/worddata', methods=['GET'])
+@cross_origin()
+def getwords():
+    db = client['jpdata']
+    collection = db['books']
+
+    wordId = ObjectId(request.args.get('_id'))
+    
+    return Response(response=dumps(collection.find_one({'_id': wordId})),
                     mimetype='application/json')

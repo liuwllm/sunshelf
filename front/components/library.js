@@ -7,7 +7,7 @@ import {
     ModalBody,
     ModalCloseButton,
     useDisclosure,
-    IconButton,
+    Flex,
     Button,
     Card, 
     CardHeader, 
@@ -21,26 +21,24 @@ import {
     TabPanel,
     Heading
 } from '@chakra-ui/react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/router'
 
 export default function Library(){
     const [libraryArray, updateLibraryArray] = useState([]);
 
-    useEffect(function effectFunction() {
-            var requestOptions = {
-                method: 'GET',
-                redirect: 'follow'
-            };
-              
-            fetch("http://localhost:5000/", requestOptions)
-                .then(response => response.json())
-                .then(result => {
-                    updateLibraryArray(result)
-                })
-                .catch(error => console.log('error', error));
-    }, [libraryArray])
+    const router = useRouter()
 
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    useEffect(() => {
+        var requestOptions = {
+            method: 'GET'
+        };
+          
+        fetch("http://localhost:5000/", requestOptions)
+            .then(response => response.json())
+            .then(result => updateLibraryArray(result))
+            .catch(error => console.log('error', error));
+    }, [])
 
     return (
         <>
@@ -51,49 +49,7 @@ export default function Library(){
                     templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
                         {libraryArray.map(value => 
                         <Card className='p-5 text-center'>
-                            <Button onClick={onOpen}>{value['title']}</Button>
-                            
-                            <Modal size={'full'} isOpen={isOpen} onClose={onClose}>
-                                <ModalOverlay>
-                                    <ModalContent>
-                                        <ModalHeader>{value['title']}</ModalHeader>
-                                        <ModalCloseButton />
-                                        <ModalBody>
-                                            <Tabs>
-                                                <TabList>
-                                                    <Tab>Words</Tab>
-                                                </TabList>
-                                                <TabPanels>
-                                                    <TabPanel>
-                                                        <SimpleGrid
-                                                            className='m-10'
-                                                            spacing={4}
-                                                            templateColumns='repeat(auto-fill, minmax(200px, 1fr)'>
-                                                            {value.words.map(word =>
-                                                                <Card className='p-5 text-center'>
-                                                                    <CardHeader>
-                                                                        <Heading size='xl'>
-                                                                            {word['keb'] ? word['keb'] : word['reb']}
-                                                                        </Heading>
-                                                                    </CardHeader>
-                                                                    <CardBody>
-                                                                        {word['gloss']}
-                                                                    </CardBody>
-                                                                </Card>
-                                                            )}
-                                                        </SimpleGrid>
-                                                    </TabPanel>
-                                                </TabPanels>
-                                            </Tabs>
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <Button colorScheme='red' mr={3} onClick={onClose}>
-                                                Close
-                                            </Button>
-                                        </ModalFooter>
-                                    </ModalContent>
-                                </ModalOverlay>
-                            </Modal>
+                            <Button onClick={() => router.push('/entries/' + value['_id'])}>{value['title']}</Button>
                         </Card>
                         )}
                 </SimpleGrid>

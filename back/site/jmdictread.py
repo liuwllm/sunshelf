@@ -12,7 +12,7 @@ for child in root:
         "id" : 'null', 
         "keb" : [],
         "reb" : [],
-        "gloss" : []
+        "sense" : []
     }
 
     for element in child:
@@ -27,9 +27,11 @@ for child in root:
                 if reading.tag == 'reb':
                     entry['reb'].append(reading.text)
         elif element.tag == 'sense':
+            sense = []
             for definition in element:
                 if definition.tag == 'gloss':
-                    entry['gloss'].append(definition.text)
+                    sense.append(definition.text)
+            entry['sense'].append(sense)
     
     dictEntries.append(entry)
 

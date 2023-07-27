@@ -1,4 +1,3 @@
-import { Flex, Spacer } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import {
     Modal,
@@ -9,36 +8,57 @@ import {
     ModalBody,
     ModalCloseButton,
     useDisclosure,
-    IconButton,
     Button,
+    Input,
+    InputGroup,
+    InputLeftAddon,
+    Flex,
 } from '@chakra-ui/react'
 import AddIcon from '@mui/icons-material/Add';
+import { router } from 'next/router'
 
 export default function FileUploadPage(){
     const [selectedFile, setSelectedFile] = useState();
-    const [isSelected, setIsSelected] = useState(false);
-  
+    const [title, setTitle] = useState("Untitled");
+    const [errorMsg, setErrorMsg] = useState(false);
+
     const changeHandler = (event) => {
       setSelectedFile(event.target.files[0]);
-      setIsSelected(true);
     };
+
+    const titleChangeHandler = (event) => {
+        setTitle(event.target.value)
+    }
+
   
     const handleSubmission = () => {
-      var formdata = new FormData();
-      formdata.append("file", selectedFile);
-      
-      var requestOptions = {
-        method: 'POST',
-        body: formdata,
-        redirect: 'follow'
-      };
-      
-      fetch("http://localhost:5000/textupload", requestOptions)
-        .then(response => response.text())
-        .then(result => console.log(result))
-        .catch(error => console.log('error', error));
-    
-      onClose();
+        const MAX_FILE_SIZE = 5242880
+
+        if (!selectedFile) {
+            setErrorMsg("Choose a file.")
+            return
+        }
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            setErrorMsg("File size is too big! Max: 5MB")
+            return
+        }
+
+        setErrorMsg("");
+
+        var formdata = new FormData();
+        formdata.append("file", selectedFile);
+        formdata.append("title", title)
+        
+        var requestOptions = {
+            method: 'POST',
+            body: formdata,
+            redirect: 'follow'
+        };
+
+        fetch("http://localhost:5000/textupload", requestOptions)
+            .then(response => response.json())
+            .then(result => router.push('/entries/' + result['_id']))
+            .catch(error => console.log('error', error));
     };
 
     const { isOpen, onOpen, onClose } = useDisclosure()
@@ -65,7 +85,12 @@ export default function FileUploadPage(){
                     <ModalCloseButton />
                     <ModalBody>
                     <div className="pl-10">
-                        <input type="file" name="file" id='upload-text' onChange={changeHandler} />
+                        <InputGroup className='mb-5'>
+                            <InputLeftAddon children='Title'/>
+                            <Input onChange={titleChangeHandler} placeholder='Untitled' />
+                        </InputGroup>
+                        <input className='mb-5' type="file" name="file" id='upload-text' onChange={changeHandler} />
+                        <p className='text-red-500'>{errorMsg}</p>
                     </div>
                     </ModalBody>
 
