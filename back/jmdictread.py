@@ -1,7 +1,7 @@
 import json
 import xml.etree.ElementTree as ET
 
-tree = ET.parse('./site/JMdict_e.xml')
+tree = ET.parse('./JMdict_e.xml')
 root = tree.getroot()
 
 dictEntries = []
