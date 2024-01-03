@@ -59,14 +59,15 @@ def upload():
     dbEntry = {}
     dbEntry['words'] = foundWords
     dbEntry['title'] = title
+    dbEntry['_id'] = str(ObjectId())
 
     book = collection.insert_one(dbEntry)
-    
-    uploadResponse = {"_id": str(book.inserted_id)}
 
-    collection = db['titles']
+    uploadResponse = {"_id": book.inserted_id}
 
-    collection.insert_one({'_id': str(book.inserted_id), 'title': dbEntry['title']})
+    # collection = db['titles']
+
+    # collection.insert_one({'_id': str(book.inserted_id), 'title': dbEntry['title']})
 
     return Response(response=json.dumps(uploadResponse),
                     mimetype='application/json')
@@ -75,9 +76,9 @@ def upload():
 @cross_origin()
 def render():
     db = client['jpdata']
-    collection = db['titles']
+    collection = db['books']
 
-    return Response(response=dumps(list(collection.find())),
+    return Response(response=dumps(list(collection.find({},{"title":1}))),
                     mimetype='application/json')
 
 @app.route('/worddata', methods=['GET'])
@@ -86,7 +87,7 @@ def getwords():
     db = client['jpdata']
     collection = db['books']
 
-    wordId = ObjectId(request.args.get('_id'))
+    wordId = request.args.get('_id')
     
     return Response(response=dumps(collection.find_one({'_id': wordId})),
                     mimetype='application/json')
