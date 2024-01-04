@@ -39,6 +39,11 @@ export default function Post({ data }) {
         }
     }
 
+    function updateTitle(data) {
+        const [title, setTitle] = useState(data['title'])
+
+    }
+
     function exportCards() {
         const csvHeader = "data:text/csv;charset=utf-8,"
         const csvString = [
@@ -96,7 +101,7 @@ export default function Post({ data }) {
                                         <PopoverCloseButton />
                                         <PopoverBody>
                                             <Heading size='md' className='text-center'>{word['keb'].slice(1,-1).map(keb => keb.concat(" / ")).concat(word['keb'].slice(-1))}</Heading>
-                                            E                    </PopoverBody>
+                                        </PopoverBody>
                                         <PopoverFooter>
                                             <Text className='text-center' fontSize={'xs'}>variants</Text>
                                         </PopoverFooter>

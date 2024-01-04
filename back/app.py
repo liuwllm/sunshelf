@@ -1,4 +1,4 @@
-from flask import Flask, Response, flash, request, redirect, url_for, jsonify
+from flask import Flask, Response, request, abort
 from flask_cors import CORS, cross_origin
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -14,6 +14,7 @@ from bson.objectid import ObjectId
 load_dotenv()
 uri = os.getenv('MONGODB_URI')
 
+# Connect to MongoDB
 client = MongoClient(uri, server_api=ServerApi('1'))
 
 try:
@@ -25,13 +26,12 @@ except Exception as e:
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-
 app.config['UPLOAD_FOLDER'] = './'
-app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'epub'}
+app.config['ALLOWED_EXTENSIONS'] = ['txt', 'pdf', 'epub']
 
 def allowed_file(filename):
     return '.' in filename and \
-        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+        filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
 def match(dictionary):
     megaList = []
@@ -49,6 +49,10 @@ def upload():
     collection = db['books']
     
     f = request.files['file']
+    
+    if allowed_file(f.filename) == False:
+        abort(500, 'Unsupported file type')
+        
     savedPath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
     
     f.save(savedPath)
@@ -96,9 +100,6 @@ def getwords():
         'title': book['title'],
         'words': []
     }
-    
-    print(type(book['words']))
-    print(type(book['words'][0]))
 
     for i in range(0 + offset, 20 + offset):
         result['words'].append(idLookup[book['words'][i]])
@@ -106,3 +107,12 @@ def getwords():
 
     return Response(response=dumps(result),
                     mimetype='application/json')
+
+'''
+@app.route('/upload', methods=['PUT'])
+@cross_origin()
+def rename():
+    db = client['jpdata']
+    collection = db ['books']
+'''
+    
