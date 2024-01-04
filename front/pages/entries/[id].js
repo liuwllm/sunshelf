@@ -22,6 +22,7 @@ import { useState } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import { router } from 'next/router';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 export default function Post({ data }) {
     const [selectedCards, setSelectedCards] = useState([])
@@ -95,7 +96,7 @@ export default function Post({ data }) {
                                         <PopoverCloseButton />
                                         <PopoverBody>
                                             <Heading size='md' className='text-center'>{word['keb'].slice(1,-1).map(keb => keb.concat(" / ")).concat(word['keb'].slice(-1))}</Heading>
-                                        </PopoverBody>
+                                            E                    </PopoverBody>
                                         <PopoverFooter>
                                             <Text className='text-center' fontSize={'xs'}>variants</Text>
                                         </PopoverFooter>
@@ -122,11 +123,17 @@ export default function Post({ data }) {
 }
 
 export async function getServerSideProps(context) {
-    const { id } = context.query
-    const res = await fetch(`http://localhost:5000/worddata?_id=${id}`)
+    console.log(context.query)
+
+    const id = context.query.id
+    const offset = context.query.offset
+
+    const res = await fetch(`http://localhost:5000/worddata?_id=${id}&offset=${offset}`)
     const data = await res.json()
    
+    
     console.log(data)
+
 
     // Pass data to the page via props
     return { props: { data } }

@@ -35,6 +35,29 @@ for child in root:
     
     dictEntries.append(entry)
 
+kebLookup = {}
+
+for entry in dictEntries:
+    for keb in entry['keb']:
+        if keb in kebLookup:
+            kebLookup[keb].append(entry['id'])
+        else:
+            kebLookup[keb] = [entry['id']]
+
+idLookup = {}
+
+for entry in dictEntries:
+    idLookup[entry['id']] = {
+        "keb": entry['keb'],
+        "reb": entry['reb'],
+        "sense": entry['sense']
+    }
+
+idJson = json.dumps(idLookup, indent=2)
+
+with open("idLookup.json", "w") as outfile:
+    outfile.write(idJson)
+
 jsonEntries = json.dumps(dictEntries, indent=2)
 
 with open("jmdict.json", "w") as outfile:

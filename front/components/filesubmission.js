@@ -57,7 +57,7 @@ export default function FileUploadPage(){
 
         fetch("http://localhost:5000/textupload", requestOptions)
             .then(response => response.json())
-            .then(result => router.push('/entries/' + result['_id']))
+            .then(result => router.push('/entries/' + result['_id'] + '?offset=0'))
             .catch(error => console.log('error', error));
     };
 

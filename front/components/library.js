@@ -49,7 +49,7 @@ export default function Library(){
                     templateColumns='repeat(auto-fill, minmax(200px, 1fr))'>
                         {libraryArray.map(value => 
                         <Card className='p-5 text-center'>
-                            <Button onClick={() => router.push('/entries/' + value['_id'])}>{value['title']}</Button>
+                            <Button onClick={() => router.push('/entries/' + value['_id'] +'?offset=0')}>{value['title']}</Button>
                         </Card>
                         )}
                 </SimpleGrid>

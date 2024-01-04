@@ -26,7 +26,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
-app.config['UPLOAD_FOLDER'] = './uploads'
+app.config['UPLOAD_FOLDER'] = './'
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'epub'}
 
 def allowed_file(filename):
@@ -36,9 +36,9 @@ def allowed_file(filename):
 def match(dictionary):
     megaList = []
     for word in dictionary:
-        for entry in dictEntries:
-            if word in entry['keb']:
-                megaList.append(entry)
+        if word in kebLookup:
+            for id in kebLookup[word]:
+                megaList.append(id)
     print(megaList)
     return megaList
 
@@ -50,24 +50,24 @@ def upload():
     
     f = request.files['file']
     savedPath = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+    
     f.save(savedPath)
+    
     analysis = jpWordExtract(textExtract(savedPath))
-    foundWords = match(analysis)
+    foundWordIds= match(analysis)
+    
+    os.remove(savedPath)
     
     title = request.form.get('title')
 
     dbEntry = {}
-    dbEntry['words'] = foundWords
+    dbEntry['words'] = foundWordIds
     dbEntry['title'] = title
     dbEntry['_id'] = str(ObjectId())
 
     book = collection.insert_one(dbEntry)
 
     uploadResponse = {"_id": book.inserted_id}
-
-    # collection = db['titles']
-
-    # collection.insert_one({'_id': str(book.inserted_id), 'title': dbEntry['title']})
 
     return Response(response=json.dumps(uploadResponse),
                     mimetype='application/json')
@@ -87,7 +87,22 @@ def getwords():
     db = client['jpdata']
     collection = db['books']
 
-    wordId = request.args.get('_id')
+    bookId = request.args.get('_id')
+    offset = int(request.args.get('offset'))
+
+    book = collection.find_one({'_id': bookId})
+
+    result = {
+        'title': book['title'],
+        'words': []
+    }
     
-    return Response(response=dumps(collection.find_one({'_id': wordId})),
+    print(type(book['words']))
+    print(type(book['words'][0]))
+
+    for i in range(0 + offset, 20 + offset):
+        result['words'].append(idLookup[book['words'][i]])
+
+
+    return Response(response=dumps(result),
                     mimetype='application/json')
