@@ -66,7 +66,7 @@ export default function Post({ data }) {
     }
 
     return (
-    <main className='bg-red-100 h-screen font-sans'>
+    <main className='bg-red-100 min-h-auto font-sans m-0 p-0'>
     <Flex direction='column'>
     
     <Flex justify='space-between'>
