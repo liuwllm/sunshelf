@@ -8,10 +8,12 @@ def textExtract(path):
     return decodedText
 
 def jpWordExtract(text):
+    # Uses Wakati to parse text and segment
     wakati = MeCab.Tagger("-Owakati")
     wordList = wakati.parse(text).split()
     wordDict = {}
 
+    # Counts frequency of each word and collects info to dictionary
     for word in filter(
         checkWord,
         wordList):
@@ -24,6 +26,7 @@ def jpWordExtract(text):
 
     return wordDict
       
+# Regex for Japanese words
 def checkWord(word):
     return (
         not re.match(r'^s*$', word)
