@@ -22,7 +22,6 @@ import { useState } from 'react'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/Edit';
 import { router } from 'next/router';
-import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 export default function Post({ data }) {
     const [selectedCards, setSelectedCards] = useState([])
@@ -37,11 +36,6 @@ export default function Post({ data }) {
         else if (selectedCards.includes(word)){
             setSelectedCards(selectedCards.filter((card) => {return card !== word}))
         }
-    }
-
-    function updateTitle(data) {
-        const [title, setTitle] = useState(data['title'])
-
     }
 
     function exportCards() {
@@ -67,25 +61,49 @@ export default function Post({ data }) {
 
     return (
     <main className='bg-red-100 min-h-auto font-sans m-0 p-0'>
-    <Flex direction='column'>
-    
     <Flex justify='space-between'>
-    <Flex gap={2}>
-        <IconButton onClick={() => router.push('/')}colorScheme='red' className='ml-10 mt-10' width={'fit-content'} variant='ghost' aria-label='back' icon={<ArrowBackIcon />}/>
-        <Spacer />
-        <Heading className='mt-10'>
-            {data['title']}
-        </Heading>
-        <Spacer />
-        <IconButton colorScheme='red' size='xs' className='mt-12' width={'fit-content'} variant='ghost' aria-label='edit' icon={<EditIcon fontSize='small' />}/>
+        <Flex gap={2}>
+            <IconButton 
+                onClick={() => router.push('/dashboard')} 
+                colorScheme='red' 
+                className='ml-10 mt-10' 
+                width={'fit-content'} 
+                isActive='true' 
+                variant='solid' 
+                aria-label='back' 
+                icon={<ArrowBackIcon />}
+            />
+            <Spacer />
+            <Heading className='mt-10'>
+                {data['title']}
+            </Heading>
+            <Spacer />
+            <IconButton 
+                colorScheme='red' 
+                size='sm' 
+                className='mt-11' 
+                width={'fit-content'} 
+                variant='ghost' 
+                aria-label='edit' 
+                icon={<EditIcon fontSize='small' />}
+            />
+        </Flex>
+        <Button 
+            onClick={exportCards} 
+            variant='solid' 
+            colorScheme='red' 
+            className='mr-10 mt-10'
+            isActive='true'
+        >
+            Export
+        </Button>
     </Flex>
-    <Button onClick={exportCards} variant='ghost' colorScheme='red' className='mr-10 mt-10'>Export</Button>
-    </Flex>
-    </Flex>
+
     <SimpleGrid 
-                    className='m-10'
-                    spacing={4}
-                    columns={4}>
+        className='m-10'
+        spacing={4}
+        columns={4}
+    >
         {data['words'].map(word => 
             <Card>
                 <CardHeader>
@@ -133,12 +151,11 @@ export async function getServerSideProps(context) {
     const id = context.query.id
     const offset = context.query.offset
 
-    const res = await fetch(`http://localhost:5000/worddata?_id=${id}&offset=${offset}`)
+    const res = await fetch(`https://sunshelf-back.onrender.com/worddata?_id=${id}&offset=${offset}`)
     const data = await res.json()
    
     
     console.log(data)
-
 
     // Pass data to the page via props
     return { props: { data } }

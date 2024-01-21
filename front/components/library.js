@@ -34,7 +34,7 @@ export default function Library(){
             method: 'GET'
         };
           
-        fetch("http://localhost:5000/", requestOptions)
+        fetch("https://sunshelf-back.onrender.com/", requestOptions)
             .then(response => response.json())
             .then(result => updateLibraryArray(result))
             .catch(error => console.log('error', error));

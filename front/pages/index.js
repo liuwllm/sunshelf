@@ -15,22 +15,24 @@ export default function Home() {
         alt="Sunshelf Logo"
       />
       <div className="flex p-10 gap-6">
-      <Button
-        colorScheme='red'
-        size='lg'
-        variant='solid'
-        onClick={() => router.push('/register')}
-      >
-        Register
-      </Button>
-      <Button
-        colorScheme='red'
-        size='lg'
-        variant='solid'
-        onClick={() => router.push('/login')}
-      >
-        Log In
-      </Button>
+        <Button
+          colorScheme='red'
+          size='lg'
+          variant='solid'
+          isActive='true'
+          onClick={() => router.push('/auth/register')}
+        >
+          Register
+        </Button>
+        <Button
+          colorScheme='red'
+          size='lg'
+          variant='solid'
+          isActive='true'
+          onClick={() => router.push('/auth/login')}
+        >
+          Sign in
+        </Button>
       </div>
     </main>
     </>

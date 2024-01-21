@@ -21,6 +21,7 @@ export default function FileUploadPage(){
     const [selectedFile, setSelectedFile] = useState();
     const [title, setTitle] = useState("Untitled");
     const [errorMsg, setErrorMsg] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     const changeHandler = (event) => {
       setSelectedFile(event.target.files[0]);
@@ -29,9 +30,9 @@ export default function FileUploadPage(){
     const titleChangeHandler = (event) => {
         setTitle(event.target.value)
     }
-
   
     const handleSubmission = () => {
+        setIsLoading(true);
         const MAX_FILE_SIZE = 5242880
 
         if (!selectedFile) {
@@ -55,7 +56,7 @@ export default function FileUploadPage(){
             redirect: 'follow'
         };
 
-        fetch("http://localhost:5000/textupload", requestOptions)
+        fetch("https://sunshelf-back.onrender.com/textupload", requestOptions)
             .then(response => response.json())
             .then(result => router.push('/entries/' + result['_id'] + '?offset=0'))
             .catch(error => console.log('error', error));
@@ -95,12 +96,21 @@ export default function FileUploadPage(){
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button
-                            colorScheme='red'
-                            variant='outline'
-                            onClick = {handleSubmission}>
-                                Submit
-                        </Button>    
+                        {(isLoading) ?
+                            (<Button 
+                                isLoading
+                                colorScheme='red'
+                                variant='outline'>
+                                Submitting
+                            </Button>
+                            ) :
+                            (<Button
+                                colorScheme='red'
+                                variant='outline'
+                                onClick = {handleSubmission}>
+                                    Submit
+                            </Button> )
+                        }
                         <Button
                             className='ml-3'
                             colorScheme='red'
