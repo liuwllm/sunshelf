@@ -6,9 +6,6 @@ from pymongo.server_api import ServerApi
 import os
 from dotenv import load_dotenv
 
-from urllib.parse import quote_plus, urlencode
-from authlib.integrations.flask_client import OAuth
-
 import json
 from werkzeug.utils import secure_filename
 from jpextract import *
