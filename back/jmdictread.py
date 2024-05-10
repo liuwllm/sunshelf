@@ -44,23 +44,6 @@ for entry in dictEntries:
         else:
             kebLookup[keb] = [entry['id']]
 
-kebMongo = []
-
-for keb in kebLookup:
-    entry = {
-        "keb": "null",
-        "idList": []
-    }
-    entry['keb'] = keb
-    entry['idList'] = kebLookup[keb]
-
-    kebMongo.append(entry)
-
-
-idKeb = json.dumps(kebLookup, indent=2)
-with open("kebLookup.json", "w") as outfile:
-    outfile.write(idKeb)
-
 idLookup = {}
 
 for entry in dictEntries:

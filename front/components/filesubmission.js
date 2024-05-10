@@ -58,6 +58,7 @@ export default function FileUploadPage(){
 
         fetch("https://sunshelf-back.onrender.com/textupload", requestOptions)
             .then(response => response.json())
+            .then(localStorage.removeItem('cards'))
             .then(result => router.push('/entries/' + result['_id'] + '?offset=0'))
             .catch(error => console.log('error', error));
     };

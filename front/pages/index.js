@@ -1,8 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Logo from './../public/sunshelflogo.png'
-import { Button, Flex } from '@chakra-ui/react'
-import router from 'next/router'
+import FileUploadPage from '@/components/filesubmission'
 
 export default function Home() {
   return (
@@ -15,24 +14,7 @@ export default function Home() {
         alt="Sunshelf Logo"
       />
       <div className="flex p-10 gap-6">
-        <Button
-          colorScheme='red'
-          size='lg'
-          variant='solid'
-          isActive='true'
-          onClick={() => router.push('/auth/register')}
-        >
-          Register
-        </Button>
-        <Button
-          colorScheme='red'
-          size='lg'
-          variant='solid'
-          isActive='true'
-          onClick={() => router.push('/auth/login')}
-        >
-          Sign in
-        </Button>
+        <FileUploadPage />
       </div>
     </main>
     </>
