@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 import json
 from werkzeug.utils import secure_filename
 from jpextract import *
-from jmdictread import *
 from bson.json_util import dumps
 from bson.objectid import ObjectId
 
@@ -102,6 +101,3 @@ def getwords():
 
     return Response(response=dumps(result),
                     mimetype='application/json')
-
-if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=10000)
