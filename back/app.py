@@ -40,20 +40,25 @@ def allowed_file(filename):
 def match(words):
     db = client['jpdata']
     collection = db['kebLookup']
-    foundWords = {}
+    
     megaList = []
+    foundWords = {}
 
     for word in words:
+        # Skips searching JMDict if word has already been found
         if word in foundWords:
             continue
-
+        
+        # Search JMDict for word
         matchingResult = collection.find_one({"keb": word})
         foundWords[word] = True
-
-        if matchingResult != None:
-            for id in matchingResult['idList']:
-                megaList.append(id)
-
+        
+        if matchingResult == None:
+            continue
+        
+        for id in matchingResult['idList']:
+            megaList.append(id)
+    
     # Returns list of all IDs for words found
     return megaList
 
@@ -74,7 +79,7 @@ def upload():
     
     analysis = jpWordExtract(textExtract(savedPath))
     foundWordIds= match(analysis)
-    
+
     os.remove(savedPath)
     
     title = request.form.get('title')
@@ -89,6 +94,14 @@ def upload():
     uploadResponse = {"_id": book.inserted_id}
 
     return Response(response=json.dumps(uploadResponse),
+                    mimetype='application/json')
+
+@app.route('/', methods=['GET'])
+@cross_origin()
+def render(current_user):
+    db = client['jpdata']
+    collection = db['books']
+    return Response(response=dumps(list(collection.find({},{"title":1}))),
                     mimetype='application/json')
 
 @app.route('/worddata', methods=['GET'])
@@ -107,8 +120,14 @@ def getwords():
         'words': []
     }
 
+    jmdict = db['jmdict']
+
+    numberOfWords = len(book['words'])
+
     for i in range(0 + offset, 20 + offset):
-        result['words'].append(idLookup[book['words'][i]])
+        if i > numberOfWords:
+            break
+        result['words'].append(jmdict.find_one({ "id": book['words'][i] }))
 
     return Response(response=dumps(result),
                     mimetype='application/json')
