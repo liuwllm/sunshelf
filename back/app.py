@@ -37,13 +37,23 @@ def allowed_file(filename):
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
 
-def match(dictionary):
+def match(words):
+    db = client['jpdata']
+    collection = db['kebLookup']
+    foundWords = {}
     megaList = []
-    for word in dictionary:
-        if word in kebLookup:
-            for id in kebLookup[word]:
-                megaList.append(id)
-    print(megaList)
+
+    for word in words:
+        if word in foundWords:
+            continue
+
+        matchingResult = collection.find_one({"keb": word})
+        foundWords[word] = True
+
+        for id in matchingResult['idList']:
+            megaList.append(id)
+
+    # Returns list of all IDs for words found
     return megaList
 
 @app.route('/textupload', methods=['POST'])
