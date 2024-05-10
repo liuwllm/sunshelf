@@ -50,8 +50,9 @@ def match(words):
         matchingResult = collection.find_one({"keb": word})
         foundWords[word] = True
 
-        for id in matchingResult['idList']:
-            megaList.append(id)
+        if matchingResult != None:
+            for id in matchingResult['idList']:
+                megaList.append(id)
 
     # Returns list of all IDs for words found
     return megaList
