@@ -33,12 +33,6 @@ try:
 except Exception as e:
     print(e)
 
-app = Flask(__name__)
-cors = CORS(app)
-app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['UPLOAD_FOLDER'] = './'
-app.config['ALLOWED_EXTENSIONS'] = ['txt', 'pdf', 'epub']
-
 # Defines allowed file types
 def allowed_file(filename):
     return '.' in filename and \
@@ -108,3 +102,6 @@ def getwords():
 
     return Response(response=dumps(result),
                     mimetype='application/json')
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=10000)
