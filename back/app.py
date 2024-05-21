@@ -15,7 +15,7 @@ from bson.objectid import ObjectId
 
 # Initialize Flask App & CORS
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, origins=["https://sunshelf.vercel.app/"])
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config['UPLOAD_FOLDER'] = './'
 app.config['ALLOWED_EXTENSIONS'] = ['txt', 'pdf', 'epub']
