@@ -1,5 +1,6 @@
 from flask import Flask, Response, request, abort, redirect, render_template, session, url_for
 from flask_cors import CORS, cross_origin
+import pymongo
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -31,6 +32,11 @@ try:
     print("Successfully connected to DB!")
 except Exception as e:
     print(e)
+
+db = client['jpdata']
+collection = db['kebLookup']
+
+collection.create_index([('keb', pymongo.ASCENDING)], name='search_index')
 
 # Defines allowed file types
 def allowed_file(filename):
@@ -98,7 +104,7 @@ def upload():
 
 @app.route('/', methods=['GET'])
 @cross_origin()
-def render(current_user):
+def render():
     db = client['jpdata']
     collection = db['books']
     return Response(response=dumps(list(collection.find({},{"title":1}))),
@@ -112,7 +118,7 @@ def getwords():
 
     bookId = request.args.get('_id')
     offset = int(request.args.get('offset'))
-
+ 
     book = collection.find_one({'_id': bookId})
 
     result = {
