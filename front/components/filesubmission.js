@@ -56,7 +56,7 @@ export default function FileUploadPage(){
             redirect: 'follow'
         };
 
-        fetch("http://localhost:5000/textupload", requestOptions)
+        fetch("https://sunshelf-back.onrender.com/textupload", requestOptions)
             .then(response => response.json())
             .then(localStorage.removeItem('cards'))
             .then(result => router.push('/entries/' + result['_id'] + '?offset=0'))

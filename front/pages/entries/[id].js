@@ -18,7 +18,7 @@ export async function getServerSideProps(context) {
     const id = context.query.id
     const offset = context.query.offset
     
-    const res = await fetch(`http://localhost:5000/worddata?_id=${id}&offset=${offset}`)
+    const res = await fetch(`https://sunshelf-back.onrender.com/worddata?_id=${id}&offset=${offset}`)
     const data = await res.json()
 
     // Pass data to the page via props
