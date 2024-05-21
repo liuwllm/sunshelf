@@ -16,13 +16,6 @@ import {
     Button,
     IconButton,
     Spacer,
-    AlertDialog,
-    AlertDialogBody,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogContent,
-    AlertDialogOverlay,
-    useDisclosure,
     Accordion,
     AccordionItem,
     AccordionButton,
@@ -31,10 +24,10 @@ import {
     Box
 } from '@chakra-ui/react'
 import React, { useState, useEffect } from 'react'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { router } from 'next/router';
+import Navbar from '@/components/navbar';
+import Navbuttons from '@/components/navbuttons';
 
 export default function Post({ data, id, offset }) {
     const [cardQueue, setCardQueue] = useState([]);
@@ -63,87 +56,9 @@ export default function Post({ data, id, offset }) {
         window.dispatchEvent(new Event("storage"));
     }
 
-    function exportCards() {
-        const selectedCards = JSON.parse(localStorage.getItem('cards'));
-
-        const csvHeader = "data:text/csv;charset=utf-8,"
-        const csvString = [
-            [
-                "keb",
-                "reb",
-                "sense"
-            ],
-            ...selectedCards.map(card => [
-                card.keb.join("/"),
-                card.reb.join("/"),
-                card.sense.map((sense) => sense.join("/")).join("; ")
-            ])
-        ].map(e => e.join(","))
-        .join("\n");
-        const finalCsv = csvHeader + csvString;
-
-        let encodedUri = encodeURI(finalCsv);
-        window.open(encodedUri);
-    }
-
-    const { isOpen, onOpen, onClose } = useDisclosure()
-    const cancelRef = React.useRef()
-
     return (
     <main className='bg-red-100 min-h-auto font-sans m-0 p-0'>
-    <Flex justify='space-between'>
-        <Flex gap={2}>
-            <IconButton 
-                onClick={onOpen} 
-                colorScheme='red' 
-                className='ml-10 mt-10' 
-                width={'fit-content'} 
-                isActive='true' 
-                variant='solid' 
-                aria-label='back' 
-                icon={<ArrowBackIcon />}
-            />
-            <AlertDialog
-                isOpen={isOpen}
-                leastDestructiveRef={cancelRef}
-                onClose={onClose}
-            >
-                <AlertDialogOverlay>
-                <AlertDialogContent>
-                    <AlertDialogHeader fontSize='lg' fontWeight='bold'>
-                    Return to Main Menu
-                    </AlertDialogHeader>
-
-                    <AlertDialogBody>
-                    Are you done exporting all needed cards? You can't return to this page afterwards.
-                    </AlertDialogBody>
-
-                    <AlertDialogFooter>
-                    <Button ref={cancelRef} onClick={onClose}>
-                        Cancel
-                    </Button>
-                    <Button colorScheme='red' variant='outline' onClick={() => router.push('/')} ml={3}>
-                        Return to Main Menu
-                    </Button>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-                </AlertDialogOverlay>
-            </AlertDialog>
-            <Spacer />
-            <Heading className='mt-10'>
-                {data['title']}
-            </Heading>
-        </Flex>
-        <Button 
-            onClick={exportCards} 
-            variant='solid' 
-            colorScheme='red' 
-            className='mr-10 mt-10'
-            isActive='true'
-        >
-            Export
-        </Button>
-    </Flex>
+    <Navbar title={data['title']} />
 
     <Accordion allowToggle className='ml-10 mr-10 mt-10'>
     <AccordionItem>
@@ -240,47 +155,7 @@ export default function Post({ data, id, offset }) {
             </Card>
         )}
     </SimpleGrid>
-    
-    <Flex justify='center' gap={1}>
-        {(offset == 0) ?
-            (<Button
-                variant='solid' 
-                colorScheme='gray' 
-                className='mb-10'
-                isActive='true'
-            >
-                Previous
-            </Button>) :
-            (<Button
-                onClick={() => router.push('/entries/' + id + '?offset=' + (parseInt(offset) - 20).toString())} 
-                variant='solid' 
-                colorScheme='red' 
-                className='mb-10'
-                isActive='false'
-            >
-                Previous
-            </Button>)
-        }
-        {(offset + 20 >= data['words'].length) ?
-            (<Button
-                onClick={() => router.push('/entries/' + id + '?offset=' + (parseInt(offset) + 20).toString())} 
-                variant='solid' 
-                colorScheme='red' 
-                className='mb-10'
-                isActive='false'
-            >
-                Next
-            </Button>) :
-            (<Button
-                variant='solid' 
-                colorScheme='gray' 
-                className='mb-10'
-                isActive='true'
-            >
-                Next
-            </Button>)
-        }
-    </Flex>
+    <Navbuttons words={data['words']} id={id} offset={offset} />
     </main>
     );
 }
@@ -289,7 +164,7 @@ export async function getServerSideProps(context) {
     const id = context.query.id
     const offset = context.query.offset
     
-    const res = await fetch(`https://sunshelf-back.onrender.com/worddata?_id=${id}&offset=${offset}`)
+    const res = await fetch(`http://localhost:5000/worddata?_id=${id}&offset=${offset}`)
     const data = await res.json()
 
     // Pass data to the page via props
